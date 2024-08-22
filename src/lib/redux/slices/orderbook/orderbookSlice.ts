@@ -7,6 +7,13 @@ const initialState: OrderbookState = symbolList.reduce((acc, symbol) => {
     orderbook: {
       asks: [],
       bids: [],
+      prevAsks: undefined,
+      prevBids: undefined,
+      seqNum: undefined,
+    },
+    quote: {
+      price: undefined,
+      trend: undefined,
     },
   };
   return acc;
@@ -16,6 +23,12 @@ export const orderbookSlice = createSlice({
   name: 'orderbook',
   initialState,
   reducers: {
+    updateQuote: (
+      state,
+      action: PayloadAction<{ symbol: supportedSymbol; quote: quote }>,
+    ) => {
+      state[action.payload.symbol].quote = action.payload.quote;
+    },
     updateOrderBook: (state, action: PayloadAction<OrderbookState>) => {
       for (const symbol in action.payload) {
         state[symbol as supportedSymbol].orderbook =
@@ -37,9 +50,18 @@ export type OrderbookState = Record<supportedSymbol, SymbolDetail>;
 export type SymbolDetail = {
   name: supportedSymbol;
   orderbook: OrderbookData;
+  quote: quote;
+};
+
+export type quote = {
+  price: number | undefined;
+  trend: 'up' | 'down' | undefined;
 };
 
 export type OrderbookData = {
-  bids: Array<[number?, number?, number?]>;
-  asks: Array<[number?, number?, number?]>;
+  bids: Array<[string, string]>;
+  asks: Array<[string, string]>;
+  prevAsks?: Record<string, string>;
+  prevBids?: Record<string, string>;
+  seqNum: number | undefined;
 };

@@ -5,7 +5,7 @@ import {
   subscriptionSlice,
 } from '@/lib/redux';
 import type { ReduxThunkAction } from '@/lib/redux';
-import { orderbookDepth } from '@/config/symbols';
+import { symbolGrouping, marketWs, orderbookWs } from '@/config/symbols';
 import type { supportedSymbol } from '@/config/symbols';
 
 let orderBookTimeout: number | null = null;
@@ -29,21 +29,55 @@ export const subscribeOrderBook =
     if (inherit) {
       symbols = Array.from(new Set([...orderBookSubscribeList, ...symbols])); // Remove duplicate symbols
     }
-    const channels = symbols.map(
-      (symbol) => `book.${symbol}.${orderbookDepth}`,
-    );
 
-    sendMessage('CRYPTO_COM_MARKET_WSS', {
-      id: 1,
-      method: 'subscribe',
-      params: {
-        channels,
-      },
+    const channels: {
+      update: string[];
+      tradeHistoryApiV2: string[];
+    } = {
+      update: [],
+      tradeHistoryApiV2: [],
+    };
+
+    symbols.forEach((symbol) => {
+      channels.update.push(`update:${symbol}_${symbolGrouping}`);
+      channels.tradeHistoryApiV2.push(`tradeHistoryApiV2:${symbol}`);
     });
+
+    sendMessage(
+      marketWs,
+      {
+        op: 'subscribe',
+        args: channels.tradeHistoryApiV2,
+      },
+      true,
+    );
+    sendMessage(
+      orderbookWs,
+      {
+        op: 'subscribe',
+        args: channels.update,
+      },
+      true,
+    );
 
     // dispatch(orderbookThunks.updateOrderBook());
     // dispatch(updateOrderBookByInterval());
+
     dispatch(subscriptionSlice.actions.setOrderBookSubscribeList(symbols));
+  };
+
+export const reSubscribeOrderBook =
+  ({ symbol }: { symbol: supportedSymbol }): ReduxThunkAction =>
+  (dispatch, getState) => {
+    const args = [`update:${symbol}_${symbolGrouping}`];
+    sendMessage(orderbookWs, {
+      op: 'unsubscribe',
+      args,
+    });
+    sendMessage(orderbookWs, {
+      op: 'subscribe',
+      args,
+    });
   };
 
 export type subscribeOrderBookPayload = {

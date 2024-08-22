@@ -1,14 +1,53 @@
+@value background-color: #131B29;
+@value text-color: #F0F4F8;
+@value quote-head-color: #8698aa;
+@value buy-quote-color: #00b15d;
+@value sell-quote-color: #FF5B5A;
+@value hover-background-color: #1E3059;
+@value buy-bar-color: rgba(16, 186, 104, 0.12);
+@value sell-bar-color: rgba(255, 90, 90, 0.12);
+@value flash-green: rgba(0, 177, 93, 0.5);
+@value flash-red: rgba(255, 91, 90, 0.5);
+@value price-nutral-background: #rgba(134, 152, 170, 0.12);
+
 .container {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
-  width: 80%;
+  width: 320px;
+  background: background-color;
+}
+
+.title {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  color: text-color;
+  padding: 8px;
+  margin: 0;
+}
+
+.header {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  color: quote-head-color;
+  margin: 4px 0;
+  padding: 0 8px;
+}
+.header span:nth-child(2) {
+  text-align: center;
+}
+.header span:nth-child(3) {
+  text-align: right;
 }
 
 .cards {
-  width: 30%;
+  width: 100%;
 }
 
 .reverseContainer {
@@ -16,37 +55,140 @@
   flex-direction: column-reverse;
 }
 
+.priceContainer {
+  color: text-color;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  height: 28px;
+}
+
+.nutral {
+  background-color: price-nutral-background;
+}
+.span {
+  color: text-color;
+}
+.up {
+  background-color: buy-bar-color;
+}
+.up span {
+  color: buy-quote-color;
+}
+.down {
+  background-color: sell-bar-color;
+}
+.down span {
+  color: sell-quote-color;
+}
+
+.price {
+  color: text-color;
+  font-size: 20px;
+}
+
 .row {
   width: 100%;
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
   align-items: center;
+  justify-content: center;
+  margin: 4px 0;
+  padding: 0 8px;
+}
+.row:hover {
+  background-color: hover-background-color !important;
+}
+
+.rowCell {
+  width: 33%;
+  height: 20px;
+}
+
+.rowPrice {
+  
+}
+
+.rowSize {
+  text-align: right;
+  /* transform: translateX(-33%); */
+  color: text-color;
+  width: 26%;
+}
+.rowSum {
+  text-align: right;
+  color: text-color;
   position: relative;
+  width: 40%;
 }
 
 .askBar {
-  background-color: crimson;
-  opacity: 0.2;
+  background-color:  buy-bar-color;
   position: absolute;
-  left: 0;
+  right: 0;
   top: 0;
   bottom: 0;
 }
 
 .bidBar {
-  background-color: green;
-  opacity: 0.2;
+  background-color: sell-bar-color;
   position: absolute;
-  left: 0;
+  right: 0;
   top: 0;
   bottom: 0;
 }
 
 .ask {
-  color: crimson;
+  color: buy-quote-color;
 }
 
 .bid {
-  color: green;
+  color: sell-quote-color;
+}
+
+@keyframes flashGreen {
+  0% {
+    background-color: flash-green;
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+@keyframes flashRed {
+  0% {
+    background-color: flash-red;
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+@keyframes gradient {
+	0% {
+		background-position: 0% 50%;
+	}
+	50% {
+		background-position: 100% 50%;
+	}
+	100% {
+		background-position: 0% 50%;
+	}
+}
+
+.flashGreen {
+  animation: flashGreen 500ms ease;
+}
+.flashRed {
+  animation: flashRed 500ms ease;
+}
+
+.skeleton {
+  background: linear-gradient(-90deg, hover-background-color, transparent );
+	background-size: 400% 400%;
+	animation: gradient 1.5s ease infinite;
+  height: 20px;
+  margin: 4px 0;
 }

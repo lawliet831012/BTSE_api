@@ -1,10 +1,14 @@
 /* Core */
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import ReconnectingWebSocket from 'reconnecting-websocket';
-import { messageParser } from './thunks';
-import { reduxStore } from '@/lib/redux';
+import { messageResolver } from './thunks';
+import type { wsName } from '@/config/symbols';
+// import { reduxStore } from '@/lib/redux';
 
-const wssMap: Record<string, any> = {};
+const wssMap: Record<
+  string,
+  { wss: any; initailMessage: sendMessageType[]; restart: boolean }
+> = {};
 const messageQueue: Record<string, sendMessageType[]> = {};
 
 const initialState: websocketState = {
@@ -36,14 +40,18 @@ export const websocketSlice = createSlice({
       wss.onmessage = onMessage;
       wss.onerror = onError;
 
-      wssMap[name] = wss;
+      wssMap[name] = {
+        wss,
+        initailMessage: [],
+        restart: false,
+      };
       state.connection = {
         ...state.connection,
         [name]: { url, name },
       };
     },
     disconnect: (state, action: PayloadAction<string>) => {
-      wssMap[action.payload].close();
+      wssMap[action.payload].wss.close();
       delete wssMap[action.payload];
       const { [action.payload]: _, ...rest } = state.connection;
       state.connection = rest;
@@ -52,40 +60,47 @@ export const websocketSlice = createSlice({
   extraReducers: (builder) => {},
 });
 
-export function sendMessage(name: string, payload: Record<string, any>): void {
+export function sendMessage(
+  name: string,
+  payload: Record<string, any>,
+  initail: boolean = false,
+): void {
   if (name in wssMap) {
-    wssMap[name].send(JSON.stringify(payload));
+    wssMap[name].wss.send(JSON.stringify(payload));
+    initail && wssMap[name].initailMessage.push({ name, payload });
   } else {
     if (!(name in messageQueue)) {
       messageQueue[name] = [];
     }
-    messageQueue[name].push({ name, payload });
+    messageQueue[name].push({ name, payload, initail });
   }
 }
 
 const createEventHandler = (
-  name: string,
+  name: wsName,
 ): Record<string, (enent: MessageEvent<string>) => void> => {
   return {
     onOpen: (event) => {
       console.info(name, ': Wss Open');
       if (name in messageQueue) {
         messageQueue[name].forEach((send) => {
-          sendMessage(send.name, send.payload);
+          sendMessage(send.name, send.payload, send.initail);
         });
         messageQueue[name] = [];
+      }
+      if (wssMap[name].restart) {
+        wssMap[name].initailMessage.forEach((send) => {
+          sendMessage(send.name, send.payload);
+        });
+        wssMap[name].restart = false;
       }
     },
     onClose: (event) => {
       console.info(name, ': Wss Close');
+      wssMap[name].restart = true;
     },
     onMessage: (event) => {
-      const { method }: messageType = JSON.parse(event.data);
-      if (method in messageParser) {
-        reduxStore.dispatch(
-          messageParser[method](name, JSON.parse(event.data) as messageType),
-        );
-      }
+      messageResolver[name](JSON.parse(event.data) as messageType);
     },
     onError: (event) => {
       console.info(name, ': Wss Error');
@@ -100,18 +115,27 @@ export type websocketState = {
 };
 
 export type websocketOption = {
-  name: string;
+  name: wsName;
   url: string;
 };
 
 export type messageType = {
-  id: number;
-  code?: number;
-  method: string;
-  result?: Record<string, any>;
+  data: any;
+  topic: string;
 };
 
 export type sendMessageType = {
   name: string;
   payload: Record<string, any>;
+  initail?: boolean;
+};
+
+export type OrderBookMEssage = {
+  type: string;
+  asks: Array<[string, string]>;
+  bids: Array<[string, string]>;
+  prevSeqNum: number;
+  seqNum: number;
+  timestamp: number;
+  symbol: string;
 };

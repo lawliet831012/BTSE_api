@@ -1,28 +1,15 @@
-export const symbolList = [
-  'BTCUSD-PERP',
-  'ETHUSD-PERP',
-  'SOL_USD',
-  'XRP_USD',
-  'ADA_USD',
-  'MATIC_USD',
-] as const;
+export const symbolList = ['BTCPFC'] as const;
 export type supportedSymbol = (typeof symbolList)[number];
 
-export const periodList = [
-  '1m',
-  '5m',
-  '15m',
-  '30m',
-  '1h',
-  '2h',
-  '4h',
-  '12h',
-  '1D',
-  '7D',
-  '14D',
-  '1M',
-] as const;
+export const symbolGrouping = 0;
+export const orderbookDepth = 8;
 
-export type supportedPeriod = (typeof periodList)[number];
+export const marketWs = 'BTSE_MARKET_WSS' as const;
+export const orderbookWs = 'BTSE__ORDERBOOK_WSS' as const;
+export type marketWsType = typeof marketWs;
+export type orderbookWsType = typeof orderbookWs;
+export type wsName = [marketWsType, orderbookWsType][number];
 
-export const orderbookDepth = 10;
+export const priceSymbolMap: Record<string, supportedSymbol> = {
+  'BTC-PERP': 'BTCPFC',
+};
