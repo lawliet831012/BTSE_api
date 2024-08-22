@@ -87,6 +87,17 @@
 .price {
   color: text-color;
   font-size: 20px;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  position: relative;
+}
+.priceTrend {
+  position: absolute;
+  left: calc(100% + 4px);
+  justify-content: center;
+  align-items: center;
+  display: flex;
 }
 
 .row {

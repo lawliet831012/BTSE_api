@@ -103,19 +103,19 @@ const OrderBookCard = ({
           {quote.price === undefined ? (
             <div className={styles.skeleton} />
           ) : (
-            <>
-              <span className={styles.price}>
-                {numberWuthCommas(quote.price)}
-              </span>
+            <span className={styles.price}>
+              {numberWuthCommas(quote.price)}
               <span
                 className={styles.priceTrend}
                 style={{
                   transform: `rotate(${quote.trend === 'up' ? 180 : 0}deg)`,
                 }}
               >
-                {quote.trend !== undefined && <ArrowDown />}
+                {quote.trend !== undefined && (
+                  <ArrowDown width={16} height={16} />
+                )}
               </span>
-            </>
+            </span>
           )}
         </div>
 
