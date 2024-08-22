@@ -13,5 +13,5 @@ export default function IndexPage(): JSX.Element {
 }
 
 export const metadata = {
-  title: 'crypto.com api',
+  title: 'BTSE api',
 };
