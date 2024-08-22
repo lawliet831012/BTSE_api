@@ -14,7 +14,7 @@ yarn build
 yarn start
 ```
 
-[Demo](https://btse-api.vercel.app/) on heroku
+[Demo](https://btse-api-ipxl.vercel.app/) on vercel
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
